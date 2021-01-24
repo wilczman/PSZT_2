@@ -5,39 +5,38 @@ import mnist
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
 from sklearn.model_selection import train_test_split
-limit = 1000
-
+limit = 2000
 
 digits = datasets.load_digits()
-_, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-for ax, image, label in zip(axes, digits.images, digits.target):
-    ax.set_axis_off()
-    ax.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
-    ax.set_title('Training: %i' % label)
+# _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
+# for ax, image, label in zip(axes, digits.images, digits.target):
+#     ax.set_axis_off()
+#     ax.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
+#     ax.set_title('Training: %i' % label)
 
 # flatten the images
 n_samples = len(digits.images)
 data = digits.images.reshape((n_samples, -1))
 X_train2, X_test2, y_train2, y_test2 = train_test_split(
     data, digits.target, test_size=0.5, shuffle=False)
-print(X_train2[1])
-print(y_train2[1])
-print(X_test2[1])
-print(y_test2[1])
+# print(X_train2[1])
+# print(y_train2[1])
+# print(X_test2[1])
+# print(y_test2[1])
 
 X_train, y_train, X_test, y_test = mnist.load()
-X_train = X_train[1:limit, :].astype(numpy.float64)/16.0
-X_test = X_test[1:limit, :].astype(numpy.float64)/16.0
-y_train = y_train[1:limit].astype(numpy.float64)
-y_test = y_test[1:limit].astype(numpy.float64)
+X_train = (X_train[1:limit, :]/16.0).astype(numpy.uint8).astype(numpy.float64)
+X_test = (X_test[1:limit, :]/16.0).astype(numpy.uint8).astype(numpy.float64)
+y_train = y_train[1:limit]
+y_test = y_test[1:limit]
 
-print(X_train[1])
-print(y_train[1])
-print(X_test[1])
-print(y_test[1])
+# print(X_train[2])
+# print(y_train[2])
+# print(X_test[1])
+# print(y_test)
 
 # Create a classifier: a support vector classifier
-clf = svm.SVC(gamma=0.001)
+clf = svm.SVC(gamma='scale')
 
 # Learn the digits on the train subset
 clf.fit(X_train, y_train)
