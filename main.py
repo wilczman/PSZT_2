@@ -2,7 +2,10 @@
 import matplotlib.pyplot as plt
 import numpy
 import mnist
-
+# save numpy array as csv file
+from numpy import asarray
+from numpy import save
+from numpy import load
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
 from sklearn.model_selection import train_test_split
@@ -31,56 +34,6 @@ def ovr_create_label_array(arr, digit):
     return new
 
 
-# def ovo_create_label_array(arr, digit1,digit2):
-#     """
-#     Zwraca array w typie [1 -1 -1 -1 ... ] na podstawie arraya labeli
-#     """
-#     new = numpy.ndarray(len(arr), dtype=numpy.int8)
-#     for idx, field in enumerate(arr):
-#         if field == numpy.int8(digit):
-#             new[idx] = 1
-#         else:
-#             new[idx] = -1
-#     return new
-
-# def new_ovo_create_one_digit_array(arr, arr_label, digit1, digit2):
-#     """
-#     Zwraca ndarray złożony z samych obrazków konkretnych cyfr
-#     :param arr:
-#     :param arr_label:
-#     :param digit: [int] cyfra po jakiej chcemy przefiltrować
-#     :return: [ndarray] gotowy ndarray
-#     """
-#     # new = numpy.ndarray(0, dtype=numpy.float64)
-#     ovo_x = {}
-#     ovo_y = {}
-#     for i in range(0, 10):
-#         for j in range(0,10):
-#             if i == j:
-#                 continue
-#             ovo_x[str(i)+str(j)] = numpy.ndarray((7000, 784), dtype=numpy.float64)
-#             ovo_y[str(i)+str(j)] = numpy.ndarray(7000, dtype=numpy.int8)
-#     idx = 1
-#     for field in arr_label:
-#         for i in range(0, 10):
-#             if i == field:
-#                 continue
-#             ovo_x[str(field) + str(i)][len(ovo_x.values())] = arr[idx]
-#             ovo_y[str(field) + str(i)][len(ovo_x.values())]
-#             idx += 1
-#         if field == numpy.int8(digit1):
-#             new[idx] = arr[idx]
-#             new_label[idx] = 1
-#             idx += 1
-#         elif field == numpy.int8(digit2):
-#             new[idx] = arr[idx]
-#             new_label[idx] = -1
-#             idx += 1
-#
-#     # print(idx,numpy.sum(new[idx-1]), numpy.sum(new[idx]), numpy.sum(new[idx+1]))
-#     return new[1:idx], new_label[1:idx]
-
-
 def ovo_create_one_digit_array(arr, arr_label, digit1, digit2):
     """
     Zwraca ndarray złożony z samych obrazków konkretnych cyfr
@@ -106,11 +59,6 @@ def ovo_create_one_digit_array(arr, arr_label, digit1, digit2):
     # print(idx,numpy.sum(new[idx-1]), numpy.sum(new[idx]), numpy.sum(new[idx+1]))
     return new[1:idx], new_label[1:idx]
 
-
-# save numpy array as csv file
-from numpy import asarray
-from numpy import save
-from numpy import load
 
 if __name__ == '__main__':
     ovr_train_y = {}
