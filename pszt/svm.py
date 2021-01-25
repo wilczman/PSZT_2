@@ -29,7 +29,6 @@ class SVM_NonLinear(object):
         :param X: macierz n x m, gdzie n to ilość próbek w zbiorze, a m to liczba atrybutów pojedynczej próbki
         :param y: wektor n elementowy, o wartościach y_i = {-1, 1} 
         '''
-        X = X/256
         lagrange_multipliers = self.get_lagrange_multipliers(X, y)
 
         support_vectors_indices = ((self.C > lagrange_multipliers) & (lagrange_multipliers > SUPPORT_VECTOR_MULTIPLIER_THRESHOLD))
@@ -61,7 +60,6 @@ class SVM_NonLinear(object):
                 kernel=self.kernel
             )
 
-        
 
     def get_lagrange_multipliers(self, X, y):
         n_samples, _ = X.shape
@@ -83,7 +81,7 @@ class SVM_NonLinear(object):
         return np.ravel(solution)
 
 
-class SVMClassifier(object):
+class SVM_NonLinear_Classifier(object):
 
     def __init__(self, weights, vectors, labels, bias, kernel):
         self.kernel = kernel
@@ -97,3 +95,21 @@ class SVMClassifier(object):
         for a_i, y_i, x_i in zip(self.weights, self.labels, self.vectors):
             result += a_i * y_i * self.kernel(x_i, x)
         return np.sign(result).item()
+
+
+class SVM_Linear():
+
+    def __init__(self):
+        pass
+
+    def fit(self, X, y):
+        pass
+
+
+class SVM_Linear_Classifier():
+
+    def __init__(self, sepplane):
+        pass
+
+    def fit(self, X, y):
+        
