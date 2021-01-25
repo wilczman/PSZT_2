@@ -9,6 +9,9 @@ from numpy import load
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
 from sklearn.model_selection import train_test_split
+import numpy as np
+
+from pszt import svm as svm_pszt
 
 X_train, y_train, X_test, y_test = mnist.load()
 
@@ -90,20 +93,32 @@ if __name__ == '__main__':
         for j in range(0, 10):
             if i == j:
                 continue
-            ovo_test_x[(i, j)] = load(f'ovo_test_x({i},{j}).npy')
-            ovo_test_y[(i, j)] = load(f'ovo_test_y({i},{j}).npy')
-            ovo_train_x[(i, j)] = load(f'ovo_train_x({i},{j}).npy')
-            ovo_train_y[(i, j)] = load(f'ovo_train_y({i},{j}).npy')
-    print(len(ovo_train_y.keys()), ovo_train_y.keys())
-    print(ovo_train_x[(1, 2)][1:10])
-    # print( X_train[x] for x in ovo_train_x[(1, 2)][1:10])
-    print([y_train[x] for x in ovo_train_x[(1, 2)][1:10]])
-    print(ovo_train_x[(1, 2)][1:10])
-    print(ovo_train_y[(1, 2)][1:10])
+            ovo_test_x[(i, j)] = load(f'prepared_datasets/ovo_test_x({i},{j}).npy')
+            ovo_test_y[(i, j)] = load(f'prepared_datasets/ovo_test_y({i},{j}).npy')
+            ovo_train_x[(i, j)] = load(f'prepared_datasets/ovo_train_x({i},{j}).npy')
+            ovo_train_y[(i, j)] = load(f'prepared_datasets/ovo_train_y({i},{j}).npy')
+    # print(len(ovo_train_y.keys()), ovo_train_y.keys())
+    # print(ovo_train_x[(1, 2)][1:10])
+    # # print( X_train[x] for x in ovo_train_x[(1, 2)][1:10])
+    # print([y_train[x] for x in ovo_train_x[(1, 2)][1:10]])
+    print(X_train[ovo_train_x[(1, 2)][1:10]])
+    print(y_train[ovo_train_y[(1, 2)]][1:10])
+    X = X_train[ovo_train_x[(1, 2)]]
+    y = ovo_train_y[(1, 2)]
+    print(X.max())
 
     # predicted = clf.predict(X_test)
 
+    clasifier = svm_pszt.SVM_NonLinear().fit(X, y)
 
+    test_X = X_test[ovo_test_x[(1, 2)]]/256
+    test_y = ovo_test_y[(1, 2)]
+
+    results = np.zeros(test_y.shape[0])
+    for i, x in enumerate(test_X):
+        results[i] = clasifier.predict(x)
+
+    print(np.sum( np.ones(test_y.shape[0])[test_y == results] ) / test_y.shape[0])
 
 
 
