@@ -14,11 +14,11 @@ import numpy as np
 from pszt import svm as svm_pszt
 
 X_train, y_train, X_test, y_test = mnist.load()
-
-X_train = X_train.astype(numpy.float64)
-X_test = X_test.astype(numpy.float64)
-y_train = y_train
-y_test = y_test
+limit = 2000
+X_train = X_train.astype(numpy.float64)[0:limit, :]
+X_test = X_test.astype(numpy.float64)[0:limit, :]
+y_train = y_train[0:limit]
+y_test = y_test[0:limit]
 
 
 def ovr_create_label_array(arr, digit):
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     ovo_test_y = {}
     ovo_train_y = {}
 
-    # zapis
+    # # zapis
     # for i in range(0, 10):
     #     ovr_train_y[i] = ovr_create_label_array(y_train, i)
     #     ovr_test_y[i] = ovr_create_label_array(y_test, i)
@@ -86,23 +86,23 @@ if __name__ == '__main__':
     #         save(f'ovo_test_y({i},{j}).npy', ovo_test_y[(i, j)])
     #         save(f'ovo_train_x({i},{j}).npy', ovo_train_x[(i, j)])
     #         save(f'ovo_train_y({i},{j}).npy', ovo_train_y[(i, j)])
-    # print(len(ovo_train_y.keys()), ovo_train_y.keys())
+    # # print(len(ovo_train_y.keys()), ovo_train_y.keys())
 
     # odczyt
     for i in range(0, 10):
         for j in range(0, 10):
             if i == j:
                 continue
-            ovo_test_x[(i, j)] = load(f'prepared_datasets/ovo_test_x({i},{j}).npy')
-            ovo_test_y[(i, j)] = load(f'prepared_datasets/ovo_test_y({i},{j}).npy')
-            ovo_train_x[(i, j)] = load(f'prepared_datasets/ovo_train_x({i},{j}).npy')
-            ovo_train_y[(i, j)] = load(f'prepared_datasets/ovo_train_y({i},{j}).npy')
+            ovo_test_x[(i, j)] = load(f'prepared_datasets/2000/ovo_test_x({i},{j}).npy')
+            ovo_test_y[(i, j)] = load(f'prepared_datasets/2000/ovo_test_y({i},{j}).npy')
+            ovo_train_x[(i, j)] = load(f'prepared_datasets/2000/ovo_train_x({i},{j}).npy')
+            ovo_train_y[(i, j)] = load(f'prepared_datasets/2000/ovo_train_y({i},{j}).npy')
     # print(len(ovo_train_y.keys()), ovo_train_y.keys())
     # print(ovo_train_x[(1, 2)][1:10])
-    # # print( X_train[x] for x in ovo_train_x[(1, 2)][1:10])
+    print([ y_train[x] for x in ovo_train_x[(1, 2)][1:10]])
     # print([y_train[x] for x in ovo_train_x[(1, 2)][1:10]])
-    print(X_train[ovo_train_x[(1, 2)][1:10]])
-    print(y_train[ovo_train_y[(1, 2)]][1:10])
+    # print(X_train[ovo_train_x[(1, 2)][1:10]])
+    # print(y_train[ovo_train_y[(1, 2)]][1:10])
     X = X_train[ovo_train_x[(1, 2)]]
     y = ovo_train_y[(1, 2)]
     print(X.max())
