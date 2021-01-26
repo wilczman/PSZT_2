@@ -1,4 +1,4 @@
-# Standard scientific Python imports
+import time
 import matplotlib.pyplot as plt
 import numpy as np
 import mnist
@@ -6,7 +6,6 @@ import mnist
 from numpy import asarray
 from numpy import save
 from numpy import load
-# Import datasets, classifiers and performance metrics
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
@@ -20,11 +19,11 @@ from svo import SVM as svo
 from svm_3 import svm_3
 
 X_train, y_train, X_test, y_test = mnist.load()
-
-X_train = X_train.astype(np.float64)
-X_test = X_test.astype(np.float64)
-y_train = y_train
-y_test = y_test
+limit = 5000
+X_train = X_train.astype(np.float64)[0:limit, :]
+X_test = X_test.astype(np.float64)[0:limit, :]
+y_train = y_train[0:limit]
+y_test = y_test[0:limit]
 
 
 def ovr_create_label_array(arr, digit):
@@ -118,22 +117,25 @@ if __name__ == '__main__':
     # pca.fit_transform(X_train)
     # pca.transform(X_test)
 
-    X = X_train[(y_train == 1) | (y_train == 7)][:1000]/256
-    y = np.concatenate((y_train[(y_train == 1)][:500].astype(np.double), y_train[(y_train == 7)][:500].astype(np.double)))
+    X = X_train[(y_train == 0) | (y_train == 1)] / 256
+    y = y_train[(y_train == 0) | (y_train == 1)].astype(np.double)
 
-    positive_indices = (y == 1)
-    negative_indices = (y == 7)
+    positive_indices = (y == 0)
+    negative_indices = (y == 1)
+
     y[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
     y[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
 
-    X_t = X_test[(y_test == 1) | (y_test == 7)][:1000]/256
-    y_t = np.concatenate((y_test[(y_test == 1)][:100].astype(np.double), y_test[(y_test == 7)][:100].astype(np.double)))
-    # y_t = y_test[(y_test == 1) | (y_test == 7)].astype(np.double)
+    X_t = X_test[(y_test == 0) | (y_test == 1)] / 256
+    y_t = y_test[(y_test == 0) | (y_test == 1)].astype(np.double)
 
-    positive_indices = (y_t == 1)
-    negative_indices = (y_t == 7)
+    positive_indices = (y_t == 0)
+    negative_indices = (y_t == 1)
+
     y_t[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
     y_t[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
+    print(len(y_t),len(X_t))
+    print(len(y), len(X))
 
     # # predicted = clf.predict(X_test)
     # test_X = X_test[ovo_test_x[(0, 1)]]/16
@@ -141,18 +143,20 @@ if __name__ == '__main__':
     # print(y_test[ovo_test_x[(0, 1)]][:10])
     # print(test_y[:10])
     # clasifier = svm_pszt.SVM_NonLinear().fit(X, y)
-
+    #
     # results = clasifier.predict(X_t)
-
+    #
     # classifier = svm.SVC(gamma='scale')
     # classifier.fit(X, y)
     # results = classifier.predict(X_t)
 
     # KernelSVM
-    classifier = svm_3.SVM()
-    classifier.train(X, y, {})
-    results = classifier.predict(X_t)
+    # classifier = svm_3.SVM()
+    classifier = svm_pszt.SVM_NonLinear()
+    dupa = classifier.fit(X_t, y_t)
+    # classifier.train(X, y, {})
+    results = dupa.predict(X)
 
-    print(sum(np.ones(y_t.shape)[y_t == results]) / len(y_t))
+    print(sum(np.ones(y.shape)[(y == results)]) / len(y))
 
 

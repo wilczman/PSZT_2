@@ -55,9 +55,9 @@ class SVM_NonLinear(object):
             ).predict(svm_vectors)
         )
 
-        print(svm_multipliers.shape)
-        print(svm_vectors.shape)
-        print(svm_labels.shape)
+        # print(svm_multipliers.shape)
+        # print(svm_vectors.shape)
+        # print(svm_labels.shape)
 
         return SVM_NonLinear_Classifier(
                 weights=svm_multipliers,
@@ -72,16 +72,16 @@ class SVM_NonLinear(object):
         n_samples, _ = X.shape
         K = np.zeros((n_samples, n_samples))
 
-        print("K start")
+        # print("K start")
         # X_norm = np.linalg.norm(X, axis=-1)
         K = rbf_kernel(X)
         # for i, x_i in enumerate(X):
         #     for j, x_j in enumerate(X):
         #         K[i, j] = self.kernel(x_i, x_j)
         #     print(K[i, j])
-        print("K end")
-        print(K.shape)
-        print(np.mean(K), np.min(K), np.max(K))
+        # print("K end")
+        # print(K.shape)
+        # print(np.mean(K), np.min(K), np.max(K))
 
         # P = cvxopt.matrix(np.outer(y, y)*K)
         # q = cvxopt.matrix(-np.ones((n_samples,1)))
@@ -114,7 +114,7 @@ class SVM_NonLinear_Classifier(object):
     def predict(self, X):
         a = rbf_kernel(self.vectors, X).T
         b = np.matmul(a, self.weights)
-        c = np.matmul(b.reshape(-1,1), self.labels.reshape(1,-1))
+        c = np.matmul(b.reshape(-1, 1), self.labels.reshape(1, -1))
         result = np.sum(c, axis=0) + self.bias
         return np.sign(result)
 
