@@ -39,7 +39,7 @@ class SVM_NonLinear(object):
         svm_multipliers = np.zeros(lagrange_multipliers.shape)
         svm_vectors = np.zeros(X.shape)
         svm_labels = np.zeros(y.shape)
-        
+
         svm_multipliers[support_vectors_indices] = lagrange_multipliers[support_vectors_indices]
         svm_vectors[support_vectors_indices] = X[support_vectors_indices]
         svm_labels[support_vectors_indices] = y[support_vectors_indices]
@@ -112,10 +112,24 @@ class SVM_NonLinear_Classifier(object):
         self.bias = bias
 
     def predict(self, X):
-        a = rbf_kernel(self.vectors, X).T
+        print('predict fun przed obliczeniami, długość przekazanego X: ', X.shape)
+        print('DłUGOŚC SELF.weights: ', self.weights.shape)
+        print('DłUGOŚC SELF.LABELS: ', self.labels.shape)
+        a = rbf_kernel( self.vectors, X)
+        # print(a)
         b = np.matmul(a, self.weights)
+
+
+        dupa = np.matmul(self.weights.reshape(-1, 1), self.labels.reshape(-1, 1).T)
+        # print('DłUGOŚC a: ', a.shape, a)
+        # print('DłUGOŚC dupa = weights x labels: ', dupa.shape)
         c = np.matmul(b.reshape(-1, 1), self.labels.reshape(1, -1))
+        # c = np.matmul(dupa, a)
+
         result = np.sum(c, axis=0) + self.bias
+        # print('parametry predict: a,b,c: ', a.shape, b.shape, c.shape)
+        print('result długość: ', result.shape)
+        print('predict fun po obliczeniach, długość przekazanego X: ', X.shape)
         return np.sign(result)
 
 

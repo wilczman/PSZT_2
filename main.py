@@ -19,7 +19,7 @@ from svo import SVM as svo
 from svm_3 import svm_3
 
 X_train, y_train, X_test, y_test = mnist.load()
-limit = 5000
+limit = 6000
 X_train = X_train.astype(np.float64)[0:limit, :]
 X_test = X_test.astype(np.float64)[0:limit, :]
 y_train = y_train[0:limit]
@@ -134,8 +134,7 @@ if __name__ == '__main__':
 
     y_t[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
     y_t[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
-    print(len(y_t),len(X_t))
-    print(len(y), len(X))
+
 
     # # predicted = clf.predict(X_test)
     # test_X = X_test[ovo_test_x[(0, 1)]]/16
@@ -153,10 +152,20 @@ if __name__ == '__main__':
     # KernelSVM
     # classifier = svm_3.SVM()
     classifier = svm_pszt.SVM_NonLinear()
-    dupa = classifier.fit(X_t, y_t)
+    print('odpalam fit X,y o długościach', len(y), len(X))
+    dupa = classifier.fit(X, y)
     # classifier.train(X, y, {})
-    results = dupa.predict(X)
+    print('długości danych trainowych: ', len(y), len(X))
+    print('długości danych testowych: ', len(y_t),len(X_t))
+    print('predict wektorem testowym X_t o długości: ', len(X_t))
+    xtestowe = X_t
+    ytestowe = y_t
+    results = dupa.predict(xtestowe)
+    print('wynik z predicta X_t: ', results.shape)
 
-    print(sum(np.ones(y.shape)[(y == results)]) / len(y))
+    # comparison = y == results
+    # print(np.sum(np.int8(comparison))/len(y))
+    # print(np.ones(y.shape)[(y == results)])
+    print(np.sum(np.ones(ytestowe.shape)[(ytestowe == results)]) / len(ytestowe))
 
 
