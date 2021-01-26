@@ -1,6 +1,7 @@
 import numpy as np 
 import cvxopt
 from numpy.linalg import norm
+from sklearn.metrics.pairwise import rbf_kernel
 
 SUPPORT_VECTOR_MULTIPLIER_THRESHOLD = 1e-5
 
@@ -10,7 +11,7 @@ class Kernel(object):
     '''
     @staticmethod
     def rbf(sigma = 1):
-        return lambda x_1, x_2: np.exp(-norm(np.subtract(x_1, x_2)) * (2*sigma*sigma))
+        return lambda x_1, x_2: np.exp(-norm(np.subtract(x_1, x_2)) / (2*sigma*sigma))
 
 
 class SVM_NonLinear(object):
@@ -23,12 +24,14 @@ class SVM_NonLinear(object):
         self.kernel = kernel
         self.C = C
 
-    def fit(self, X, y):
+    def fit(self, X, y, gamma=None):
         '''
         Metoda budująca klasyfikator na podstawie danych X i odpowiadającym im wartościom y
         :param X: macierz n x m, gdzie n to ilość próbek w zbiorze, a m to liczba atrybutów pojedynczej próbki
         :param y: wektor n elementowy, o wartościach y_i = {-1, 1} 
         '''
+        self.gamma = 1/X.shape[1] if gamma == None else gamma
+
         lagrange_multipliers = self.get_lagrange_multipliers(X, y)
 
         support_vectors_indices = ((self.C > lagrange_multipliers) & (lagrange_multipliers > SUPPORT_VECTOR_MULTIPLIER_THRESHOLD))
@@ -37,22 +40,22 @@ class SVM_NonLinear(object):
         svm_vectors = X[support_vectors_indices]
         svm_labels = y[support_vectors_indices]
 
-        bias = np.mean([
-            y_k - SVMClassifier(
+
+        bias = np.mean(
+            svm_labels - SVM_NonLinear_Classifier(
                 weights=svm_multipliers,
                 vectors=svm_vectors,
                 labels=svm_labels,
                 bias=0.0,
                 kernel=self.kernel
-            ).predict(x_k)
-            for (y_k, x_k) in zip(svm_labels, svm_vectors)
-        ])
+            ).predict(svm_vectors)
+        )
 
         print(svm_multipliers.shape)
         print(svm_vectors.shape)
         print(svm_labels.shape)
 
-        return SVMClassifier(
+        return SVM_NonLinear_Classifier(
                 weights=svm_multipliers,
                 vectors=svm_vectors,
                 labels=svm_labels,
@@ -65,16 +68,30 @@ class SVM_NonLinear(object):
         n_samples, _ = X.shape
         K = np.zeros((n_samples, n_samples))
 
-        for i, x_i in enumerate(X):
-            for j, x_j in enumerate(X):
-                K[i, j] = self.kernel(x_i, x_j)
-    
-        q = cvxopt.matrix(-np.ones((n_samples,1)))
+        print("K start")
+        # X_norm = np.linalg.norm(X, axis=-1)
+        K = rbf_kernel(X)
+        # for i, x_i in enumerate(X):
+        #     for j, x_j in enumerate(X):
+        #         K[i, j] = self.kernel(x_i, x_j)
+        #     print(K[i, j])
+        print("K end")
+        print(K.shape)
+        print(np.mean(K), np.min(K), np.max(K))
+
+        # P = cvxopt.matrix(np.outer(y, y)*K)
+        # q = cvxopt.matrix(-np.ones((n_samples,1)))
+        # G = cvxopt.matrix(np.concatenate((np.eye(n_samples), -np.eye(n_samples))))
+        # h = cvxopt.matrix(np.concatenate((self.C * np.ones((n_samples, 1)), np.zeros((n_samples, 1)))))
+        # b = cvxopt.matrix(0.0)
+        # A = cvxopt.matrix(y.reshape(1, n_samples).astype(np.double))
+
         P = cvxopt.matrix(np.outer(y, y)*K)
-        A = cvxopt.matrix(y.reshape(1, n_samples).astype(np.double))
-        b = cvxopt.matrix(0.0)
+        q = cvxopt.matrix(-np.ones((n_samples,1)))
         G = cvxopt.matrix(np.concatenate((np.eye(n_samples), -np.eye(n_samples))))
-        h = cvxopt.matrix(np.concatenate((self.C * np.ones((n_samples, 1)), np.zeros((n_samples, 1)))))
+        h = cvxopt.matrix(np.concatenate(np.zeros((n_samples, 1)), (self.C * np.ones((n_samples, 1)))))
+        b = cvxopt.matrix(0.0)
+        A = cvxopt.matrix(y.reshape(1, -1).astype(np.double))
 
         solution = cvxopt.solvers.qp(P, q, G, h, A, b)['x']
 
@@ -90,11 +107,9 @@ class SVM_NonLinear_Classifier(object):
         self.labels = labels
         self.bias = bias
 
-    def predict(self, x):
-        result = self.bias
-        for a_i, y_i, x_i in zip(self.weights, self.labels, self.vectors):
-            result += a_i * y_i * self.kernel(x_i, x)
-        return np.sign(result).item()
+    def predict(self, X):
+        result = np.sum(rbf_kernel(self.vectors, X).T * self.weights * self.labels.T, axis=0) + self.bias
+        return np.sign(result)
 
 
 class SVM_Linear():
@@ -112,4 +127,4 @@ class SVM_Linear_Classifier():
         pass
 
     def fit(self, X, y):
-        
+        pass
