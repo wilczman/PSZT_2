@@ -14,7 +14,6 @@ def fit(x, y):
     """
     num = x.shape[0]
     dim = x.shape[1]
-    y = y.asdtype(np.double)
     # we'll solve the dual
     # obtain the kernel
     K = y[:, None] * x
@@ -74,7 +73,6 @@ def fit_kernel(x, y, C, kernel_fun):
     """
     num = x.shape[0]
     dim = x.shape[1]
-    y = y.astype(np.double)
     # we'll solve the dual
     # obtain the kernel
     y_vec = y.reshape((num, 1))

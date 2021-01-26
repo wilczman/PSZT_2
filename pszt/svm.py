@@ -36,9 +36,13 @@ class SVM_NonLinear(object):
 
         support_vectors_indices = ((self.C > lagrange_multipliers) & (lagrange_multipliers > SUPPORT_VECTOR_MULTIPLIER_THRESHOLD))
         
-        svm_multipliers = lagrange_multipliers[support_vectors_indices]
-        svm_vectors = X[support_vectors_indices]
-        svm_labels = y[support_vectors_indices]
+        svm_multipliers = np.zeros(lagrange_multipliers.shape)
+        svm_vectors = np.zeros(X.shape)
+        svm_labels = np.zeros(y.shape)
+        
+        svm_multipliers[support_vectors_indices] = lagrange_multipliers[support_vectors_indices]
+        svm_vectors[support_vectors_indices] = X[support_vectors_indices]
+        svm_labels[support_vectors_indices] = y[support_vectors_indices]
 
 
         bias = np.mean(
@@ -89,7 +93,7 @@ class SVM_NonLinear(object):
         P = cvxopt.matrix(np.outer(y, y)*K)
         q = cvxopt.matrix(-np.ones((n_samples,1)))
         G = cvxopt.matrix(np.concatenate((np.eye(n_samples), -np.eye(n_samples))))
-        h = cvxopt.matrix(np.concatenate(np.zeros((n_samples, 1)), (self.C * np.ones((n_samples, 1)))))
+        h = cvxopt.matrix(np.concatenate((self.C * np.ones((n_samples, 1)), np.zeros((n_samples, 1)))))
         b = cvxopt.matrix(0.0)
         A = cvxopt.matrix(y.reshape(1, -1).astype(np.double))
 
@@ -108,7 +112,10 @@ class SVM_NonLinear_Classifier(object):
         self.bias = bias
 
     def predict(self, X):
-        result = np.sum(rbf_kernel(self.vectors, X).T * self.weights * self.labels.T, axis=0) + self.bias
+        a = rbf_kernel(self.vectors, X).T
+        b = np.matmul(a, self.weights)
+        c = np.matmul(b.reshape(-1,1), self.labels.reshape(1,-1))
+        result = np.sum(c, axis=0) + self.bias
         return np.sign(result)
 
 

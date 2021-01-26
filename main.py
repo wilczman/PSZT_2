@@ -9,10 +9,15 @@ from numpy import load
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
 
-# import svm_2.kernel as svm
+import svm_2.kernel as svm2
 
 from pszt import svm as svm_pszt
+
+from svo import SVM as svo 
+
+from svm_3 import svm_3
 
 X_train, y_train, X_test, y_test = mnist.load()
 
@@ -64,6 +69,7 @@ def ovo_create_one_digit_array(arr, arr_label, digit1, digit2):
     return new[1:idx], new_label[1:idx]
 
 
+
 if __name__ == '__main__':
     ovr_train_y = {}
     ovr_test_y = {}
@@ -90,41 +96,63 @@ if __name__ == '__main__':
     # print(len(ovo_train_y.keys()), ovo_train_y.keys())
 
     # odczyt
-    for i in range(0, 10):
-        for j in range(0, 10):
-            if i == j:
-                continue
-            ovo_test_x[(i, j)] = load(f'prepared_datasets/ovo_test_x({i},{j}).npy')
-            ovo_test_y[(i, j)] = load(f'prepared_datasets/ovo_test_y({i},{j}).npy')
-            ovo_train_x[(i, j)] = load(f'prepared_datasets/ovo_train_x({i},{j}).npy')
-            ovo_train_y[(i, j)] = load(f'prepared_datasets/ovo_train_y({i},{j}).npy')
+    # for i in range(0, 10):
+    #     for j in range(0, 10):
+    #         if i == j:
+    #             continue
+    #         ovo_test_x[(i, j)] = load(f'prepared_datasets/60000/ovo_test_x({i},{j}).npy')
+    #         ovo_test_y[(i, j)] = load(f'prepared_datasets/60000/ovo_test_y({i},{j}).npy')
+    #         ovo_train_x[(i, j)] = load(f'prepared_datasets/60000/ovo_train_x({i},{j}).npy')
+    #         ovo_train_y[(i, j)] = load(f'prepared_datasets/60000/ovo_train_y({i},{j}).npy')
     # print(len(ovo_train_y.keys()), ovo_train_y.keys())
     # print(ovo_train_x[(1, 2)][1:10])
     # # print( X_train[x] for x in ovo_train_x[(1, 2)][1:10])
     # print([y_train[x] for x in ovo_train_x[(1, 2)][1:10]])
     # print(X_train[ovo_train_x[(1, 2)][1:10]])
     # print(y_train[ovo_train_y[(1, 2)]][1:10])
-    X = X_train[ovo_train_x[(0, 1)]]/16
-    y = ovo_train_y[(0, 1)]
+    # X = X_train[ovo_train_x[(0, 1)]]/16
+    # y = ovo_train_y[(0, 1)]
+    
 
-    # predicted = clf.predict(X_test)
-    test_X = X_test[ovo_test_x[(0, 1)]]/16
-    test_y = ovo_test_y[(0, 1)]
-    print(y_test[ovo_test_x[(0, 1)]][:10])
-    print(test_y[:10])
-    # clasifier = svm_pszt.SVM_NonLinear().fit(X/256, y)
+    # pca = PCA(n_components=28)
+    # pca.fit_transform(X_train)
+    # pca.transform(X_test)
 
-    # results = clasifier.predict(test_X)
+    X = X_train[(y_train == 1) | (y_train == 7)][:1000]/256
+    y = np.concatenate((y_train[(y_train == 1)][:500].astype(np.double), y_train[(y_train == 7)][:500].astype(np.double)))
 
-    classifier = svm.SVC(gamma='scale')
-    classifier.fit(X, y)
-    results = classifier.predict(test_X)
+    positive_indices = (y == 1)
+    negative_indices = (y == 7)
+    y[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
+    y[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
 
-    sum = 0
-    for i, res in enumerate(results):
-        if res == test_y[i]:
-            sum += 1
+    X_t = X_test[(y_test == 1) | (y_test == 7)][:1000]/256
+    y_t = np.concatenate((y_test[(y_test == 1)][:100].astype(np.double), y_test[(y_test == 7)][:100].astype(np.double)))
+    # y_t = y_test[(y_test == 1) | (y_test == 7)].astype(np.double)
 
-    print(sum / len(results))
+    positive_indices = (y_t == 1)
+    negative_indices = (y_t == 7)
+    y_t[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
+    y_t[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
+
+    # # predicted = clf.predict(X_test)
+    # test_X = X_test[ovo_test_x[(0, 1)]]/16
+    # test_y = ovo_test_y[(0, 1)]
+    # print(y_test[ovo_test_x[(0, 1)]][:10])
+    # print(test_y[:10])
+    # clasifier = svm_pszt.SVM_NonLinear().fit(X, y)
+
+    # results = clasifier.predict(X_t)
+
+    # classifier = svm.SVC(gamma='scale')
+    # classifier.fit(X, y)
+    # results = classifier.predict(X_t)
+
+    # KernelSVM
+    classifier = svm_3.SVM()
+    classifier.train(X, y, {})
+    results = classifier.predict(X_t)
+
+    print(sum(np.ones(y_t.shape)[y_t == results]) / len(y_t))
 
 
