@@ -2,10 +2,11 @@
 import matplotlib.pyplot as plt
 import numpy
 import mnist
+import time
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
 from sklearn.model_selection import train_test_split
-limit = 2000
+limit = 60000
 
 digits = datasets.load_digits()
 # _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
@@ -37,10 +38,10 @@ y_test = y_test[1:limit]
 
 # Create a classifier: a support vector classifier
 clf = svm.SVC(gamma='scale')
-
+t = time.time()
 # Learn the digits on the train subset
 clf.fit(X_train, y_train)
-
+print('fit time: ', time.time()-t)
 # Predict the value of the digit on the test subset
 predicted = clf.predict(X_test)
 
