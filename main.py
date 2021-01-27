@@ -10,14 +10,14 @@ from pszt import ensembles
 from sklearn import datasets, metrics, svm
 # from sklearn.model_selection import train_test_split
 # from sklearn.decomposition import PCA
-
+from sklearn.metrics.pairwise import rbf_kernel
 # import svm_2.kernel as svm2
 from pszt import svm as svm_pszt
 # from svo import SVM as svo
 # from svm_3 import svm_3
 
 X_train, y_train, X_test, y_test = mnist.load()
-limit_train = 2000
+limit_train = 5000
 limit_test = 2000
 X_train = X_train.astype(np.float64)[0:limit_train, :]
 X_test = X_test.astype(np.float64)[0:limit_test, :]
@@ -69,38 +69,8 @@ def ovo_create_one_digit_array(arr, arr_label, digit1, digit2):
 
 
 if __name__ == '__main__':
-    # X = X_train[(y_train == 0) | (y_train == 3)] / 256
-    # y = y_train[(y_train == 0) | (y_train == 3)].astype(np.int8)
-    #
-    # positive_indices = (y == 0)
-    # negative_indices = (y == 3)
-    #
-    # y[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
-    # y[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
-    #
-    # X_t = X_test[(y_test == 0) | (y_test == 3)] / 256
-    # y_t = y_test[(y_test == 0) | (y_test == 3)].astype(np.int8)
-    #
-    # positive_indices = (y_t == 0)
-    # negative_indices = (y_t == 3)
-    #
-    # y_t[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
-    # y_t[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
-    #
-    # classifier = svm_pszt.SVM_NonLinear()
-    #
-    # dupa = classifier.fit(X, y)
-    # xtestowe = X_t
-    # ytestowe = y_t
-    # results = dupa.predict(xtestowe)
-    #
-    # # print(np.sum(np.ones(ytestowe.shape)[(ytestowe == results)]) / len(ytestowe))
-    # print(np.sum(np.ones(ytestowe.shape)[(ytestowe == results)]) / len(ytestowe))
-
-    ##################
-
-    classifier = svm_pszt.SVM_NonLinear
-    clf = ensembles.OVOEnsemble(classifier)
+    classifier = svm_pszt.SVM
+    clf = ensembles.OVOEnsemble(classifier, rbf_kernel)
 
     clf.fit(X_train, y_train)
 
@@ -122,5 +92,8 @@ if __name__ == '__main__':
     # print(f"Confusion matrix:\n{disp.confusion_matrix}")
     plt.show()
 
+    confusiomMatrix = metrics.confusion_matrix(y_test, predicted)
+    metrics.ConfusionMatrixDisplay(confusiomMatrix, display_labels=np.unique(y_test))
+    
     print(np.sum(np.ones(y_test.shape)[(y_test == predicted)]) / len(y_test))
-
+    

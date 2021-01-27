@@ -1,32 +1,23 @@
 import numpy as np 
 import cvxopt
 from numpy.linalg import norm
-from sklearn.metrics.pairwise import rbf_kernel
+from sklearn.metrics.pairwise import rbf_kernel as _rbf_kernel
 
-SUPPORT_VECTOR_MULTIPLIER_THRESHOLD = 1e-5
-
-class Kernel(object):
-    '''
-    Klasa implementująca wybrane funkcje jądra
-    '''
-    @staticmethod
-    def rbf(sigma = 1):
-        return lambda x_1, x_2: np.exp(-norm(np.subtract(x_1, x_2), 2) / (2*sigma*sigma))
-
-
-class SVM_NonLinear(object):
+class SVM(object):
     '''
     Klasa której podstawowym zadaniem jest zbudowanie klasyfikatora opartego
     na maszynie wektorów nośnych
     '''
 
-    def __init__(self, kernel = Kernel.rbf(), C = 1.0):
-        self.kernel = kernel
+    def __init__(self, kernel=None, C = 1.0, threshold=1e-5):
+        self.kernel = kernel if kernel is not None else self.linear_kernel()
         self.C = C
         self.vectors = None
         self.labels = None
         self.weights = None
         self.bias = None
+        self.threshold = threshold
+        self.bias = 0
 
     def fit(self, X, y, gamma=None):
         '''
@@ -38,7 +29,7 @@ class SVM_NonLinear(object):
 
         lagrange_multipliers = self.get_lagrange_multipliers(X, y)
 
-        support_vectors_indices = ((self.C > lagrange_multipliers) & (lagrange_multipliers > SUPPORT_VECTOR_MULTIPLIER_THRESHOLD))
+        support_vectors_indices = ((self.C > lagrange_multipliers) & (lagrange_multipliers > self.threshold))
         
         # svm_multipliers = np.zeros(lagrange_multipliers.shape)
         # svm_vectors = np.zeros(X.shape)
@@ -52,30 +43,15 @@ class SVM_NonLinear(object):
         self.labels = svm_labels
 
         bias = np.mean(
-            svm_labels - SVM_NonLinear_Classifier(
-                weights=svm_multipliers,
-                vectors=svm_vectors,
-                labels=svm_labels,
-                bias=0.0,
-                kernel=self.kernel
-            ).predict(svm_vectors)
+            svm_labels - self.predict(svm_vectors)
         )
         self.bias = bias
-
-        return SVM_NonLinear_Classifier(
-                weights=svm_multipliers,
-                vectors=svm_vectors,
-                labels=svm_labels,
-                bias=bias,
-                kernel=self.kernel
-            )
-
 
     def get_lagrange_multipliers(self, X, y):
         n_samples, _ = X.shape
         K = np.zeros((n_samples, n_samples))
 
-        K = rbf_kernel(X)
+        K = self.kernel(X)
 
         P = cvxopt.matrix(np.outer(y, y)*K)
         q = cvxopt.matrix(-np.ones((n_samples,1)))
@@ -89,58 +65,16 @@ class SVM_NonLinear(object):
         return np.ravel(solution)
 
     def predict(self, X):
-        ker = rbf_kernel(self.vectors, X)  # kernel nieliniowy
-        # ker = np.matmul(self.vectors, X.T)  # kernel liniowy
+        ker = self.kernel(self.vectors, X)
         alfa_y = np.multiply(self.labels.reshape(-1, 1), self.weights.reshape(-1, 1))
-        result1 = np.matmul(ker.T, alfa_y).T[0] + self.bias
+        result = np.matmul(ker.T, alfa_y).T[0] + self.bias
+        return np.sign(result)
 
-        # wersja iteracyjna również działa
-        # result1 = np.zeros(X.shape[0])
-        # for i, x in enumerate(X):
-        #     y = 0
-        #     for j, X_v in enumerate(self.vectors):
-        #         y += self.weights[j] * self.labels[j] * rbf_kernel(np.array([X_v]), np.array([x]))
-        #     result1[i] = y+self.bias
-        return np.sign(result1)
-
-
-class SVM_NonLinear_Classifier(object):
-
-    def __init__(self, weights, vectors, labels, bias, kernel):
-        self.kernel = kernel
-        self.weights = weights
-        self.vectors = vectors
-        self.labels = labels
-        self.bias = bias
-
-    def predict(self, X):
-        ker = rbf_kernel(self.vectors, X)
-        alfa_y = np.multiply(self.labels.reshape(-1, 1), self.weights.reshape(-1, 1))
-        result1 = np.matmul(ker.T, alfa_y).T[0] + self.bias
-
-        # wersja iteracyjna również działa
-        # result1 = np.zeros(X.shape[0])
-        # for i, x in enumerate(X):
-        #     y = 0
-        #     for j, X_v in enumerate(self.vectors):
-        #         y += self.weights[j] * self.labels[j] * rbf_kernel(np.array([X_v]), np.array([x]))
-        #     result1[i] = y+self.bias
-        return np.sign(result1)
-
-
-class SVM_Linear():
-
-    def __init__(self):
-        pass
-
-    def fit(self, X, y):
-        pass
-
-
-class SVM_Linear_Classifier():
-
-    def __init__(self, sepplane):
-        pass
-
-    def fit(self, X, y):
-        pass
+    
+    def linear_kernel(self):
+        def ker(X, Y=None):
+            if Y is None:
+                return np.matmul(X, X.T)
+            else:
+                return np.matmul(X, Y.T)
+        return ker

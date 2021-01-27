@@ -3,8 +3,9 @@ import itertools
 
 class OVOEnsemble(object):
 
-    def __init__(self, classifier):
+    def __init__(self, classifier, kernel=None):
         self._classifier = classifier
+        self._kernel = kernel
         
 
     def fit(self, X, y):
@@ -24,7 +25,7 @@ class OVOEnsemble(object):
             y[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
             y[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
 
-            self._models[(pClass, nClass)] = self._classifier()
+            self._models[(pClass, nClass)] = self._classifier(self._kernel)
             self._models[(pClass, nClass)].fit(X, y)
 
     def predict(self, X_in):
@@ -59,8 +60,9 @@ class OVOEnsemble(object):
 
 class OVREnsemble(object):
 
-    def __init__(self, classifier):
+    def __init__(self, classifier, kernel=None):
         self._classifier = classifier
+        self._kernel = kernel
         
 
     def fit(self, X, y):
@@ -80,7 +82,7 @@ class OVREnsemble(object):
             y[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
             y[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
 
-            self._models[i] = self._classifier()
+            self._models[i] = self._classifier(self._kernel)
             self._models[i].fit(X, y)
 
     def predict(self, X_in):
