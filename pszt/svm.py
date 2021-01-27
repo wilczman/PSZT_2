@@ -23,6 +23,9 @@ class SVM_NonLinear(object):
     def __init__(self, kernel = Kernel.rbf(), C = 1.0):
         self.kernel = kernel
         self.C = C
+        self.vectors = None
+        self.labels = None
+        self.weights = None
 
     def fit(self, X, y, gamma=None):
         '''
@@ -43,7 +46,9 @@ class SVM_NonLinear(object):
         svm_multipliers = lagrange_multipliers[support_vectors_indices]
         svm_vectors = X[support_vectors_indices]
         svm_labels = y[support_vectors_indices]
-
+        self.weights = svm_multipliers
+        self.vectors = svm_vectors
+        self.labels = svm_labels
 
         bias = np.mean(
             svm_labels - SVM_NonLinear_Classifier(
@@ -80,6 +85,20 @@ class SVM_NonLinear(object):
         solution = cvxopt.solvers.qp(P, q, G, h, A, b)['x']
 
         return np.ravel(solution)
+
+    def predict(self, X):
+        ker = rbf_kernel(self.vectors, X)
+        alfa_y = np.multiply(self.labels.reshape(-1, 1), self.weights.reshape(-1,1))
+        result1 = np.matmul(ker.T, alfa_y).T[0]
+
+        # wersja iteracyjna również działa
+        # result1 = np.zeros(X.shape[0])
+        # for i, x in enumerate(X):
+        #     y = 0
+        #     for j, X_v in enumerate(self.vectors):
+        #         y += self.weights[j] * self.labels[j] * rbf_kernel(np.array([X_v]), np.array([x]))
+        #     result1[i] = y+self.bias
+        return np.sign(result1)
 
 
 class SVM_NonLinear_Classifier(object):
