@@ -11,7 +11,7 @@ class Kernel(object):
     '''
     @staticmethod
     def rbf(sigma = 1):
-        return lambda x_1, x_2: np.exp(-norm(np.subtract(x_1, x_2),2) / (2*sigma*sigma))
+        return lambda x_1, x_2: np.exp(-norm(np.subtract(x_1, x_2), 2) / (2*sigma*sigma))
 
 
 class SVM_NonLinear(object):
@@ -26,6 +26,7 @@ class SVM_NonLinear(object):
         self.vectors = None
         self.labels = None
         self.weights = None
+        self.bias = None
 
     def fit(self, X, y, gamma=None):
         '''
@@ -59,6 +60,7 @@ class SVM_NonLinear(object):
                 kernel=self.kernel
             ).predict(svm_vectors)
         )
+        self.bias = bias
 
         return SVM_NonLinear_Classifier(
                 weights=svm_multipliers,
@@ -87,9 +89,10 @@ class SVM_NonLinear(object):
         return np.ravel(solution)
 
     def predict(self, X):
-        ker = rbf_kernel(self.vectors, X)
-        alfa_y = np.multiply(self.labels.reshape(-1, 1), self.weights.reshape(-1,1))
-        result1 = np.matmul(ker.T, alfa_y).T[0]
+        ker = rbf_kernel(self.vectors, X)  # kernel nieliniowy
+        # ker = np.matmul(self.vectors, X.T)  # kernel liniowy
+        alfa_y = np.multiply(self.labels.reshape(-1, 1), self.weights.reshape(-1, 1))
+        result1 = np.matmul(ker.T, alfa_y).T[0] + self.bias
 
         # wersja iteracyjna również działa
         # result1 = np.zeros(X.shape[0])
@@ -112,8 +115,8 @@ class SVM_NonLinear_Classifier(object):
 
     def predict(self, X):
         ker = rbf_kernel(self.vectors, X)
-        alfa_y = np.multiply(self.labels.reshape(-1, 1), self.weights.reshape(-1,1))
-        result1 = np.matmul(ker.T, alfa_y).T[0]
+        alfa_y = np.multiply(self.labels.reshape(-1, 1), self.weights.reshape(-1, 1))
+        result1 = np.matmul(ker.T, alfa_y).T[0] + self.bias
 
         # wersja iteracyjna również działa
         # result1 = np.zeros(X.shape[0])
