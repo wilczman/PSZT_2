@@ -17,8 +17,8 @@ from pszt import svm as svm_pszt
 # from svm_3 import svm_3
 
 X_train, y_train, X_test, y_test = mnist.load()
-limit_train = 10000
-limit_test = 500
+limit_train = 2000
+limit_test = 2000
 X_train = X_train.astype(np.float64)[0:limit_train, :]
 X_test = X_test.astype(np.float64)[0:limit_test, :]
 y_train = y_train[0:limit_train]
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     # Predict the value of the digit on the test subset
     predicted = clf.predict(X_test).astype(np.int8)
 
-    _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
+    _, axes = plt.subplots(nrows=1, ncols=12, figsize=(15, 5))
     for ax, image, prediction in zip(axes, X_test, predicted):
         ax.set_axis_off()
         image = image.reshape(28, 28)

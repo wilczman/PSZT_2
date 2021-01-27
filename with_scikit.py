@@ -5,7 +5,7 @@ import mnist
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
 from sklearn.model_selection import train_test_split
-limit = 2000
+limit = 4000
 
 digits = datasets.load_digits()
 # _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
@@ -59,3 +59,5 @@ disp.figure_.suptitle("Confusion Matrix")
 # print(f"Confusion matrix:\n{disp.confusion_matrix}")
 
 plt.show()
+
+print(numpy.sum(numpy.ones(y_test.shape)[(y_test == predicted)]) / len(y_test))
