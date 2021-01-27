@@ -8,7 +8,7 @@ from pszt import svm as svm_pszt
 from pszt import ensembles
 
 X_train, y_train, X_test, y_test = mnist.load()
-limit_train = 5000
+limit_train = 10000
 limit_test = 2000
 X_train = X_train.astype(np.float64)[0:limit_train, :]
 X_test = X_test.astype(np.float64)[0:limit_test, :]
@@ -17,7 +17,7 @@ y_test = y_test[0:limit_test]
 
 if __name__ == '__main__':
     classifier = svm_pszt.SVM
-    clf = ensembles.OVOEnsemble(classifier, rbf_kernel)
+    clf = ensembles.OVREnsemble(classifier, rbf_kernel)
 
     clf.fit(X_train, y_train)
 
