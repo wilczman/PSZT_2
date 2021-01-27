@@ -135,37 +135,13 @@ if __name__ == '__main__':
     y_t[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
     y_t[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
 
-
-    # # predicted = clf.predict(X_test)
-    # test_X = X_test[ovo_test_x[(0, 1)]]/16
-    # test_y = ovo_test_y[(0, 1)]
-    # print(y_test[ovo_test_x[(0, 1)]][:10])
-    # print(test_y[:10])
-    # clasifier = svm_pszt.SVM_NonLinear().fit(X, y)
-    #
-    # results = clasifier.predict(X_t)
-    #
-    # classifier = svm.SVC(gamma='scale')
-    # classifier.fit(X, y)
-    # results = classifier.predict(X_t)
-
-    # KernelSVM
-    # classifier = svm_3.SVM()
     classifier = svm_pszt.SVM_NonLinear()
-    print('odpalam fit X,y o długościach', len(y), len(X))
+
     dupa = classifier.fit(X, y, gamma=0)
-    # classifier.train(X, y, {})
-    print('długości danych trainowych: ', len(y), len(X))
-    print('długości danych testowych: ', len(y_t),len(X_t))
-    print('predict wektorem testowym X_t o długości: ', len(X_t))
     xtestowe = X_t
     ytestowe = y_t
     results = dupa.predict(xtestowe)
-    print('wynik z predicta X_t: ', results.shape)
 
-    # comparison = y == results
-    # print(np.sum(np.int8(comparison))/len(y))
-    # print(np.ones(y.shape)[(y == results)])
     print(np.sum(np.ones(ytestowe.shape)[(ytestowe == results)]) / len(ytestowe))
 
 

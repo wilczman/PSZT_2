@@ -55,10 +55,6 @@ class SVM_NonLinear(object):
             ).predict(svm_vectors)
         )
 
-        # print(svm_multipliers.shape)
-        # print(svm_vectors.shape)
-        # print(svm_labels.shape)
-
         return SVM_NonLinear_Classifier(
                 weights=svm_multipliers,
                 vectors=svm_vectors,
@@ -72,23 +68,7 @@ class SVM_NonLinear(object):
         n_samples, _ = X.shape
         K = np.zeros((n_samples, n_samples))
 
-        # print("K start")
-        # X_norm = np.linalg.norm(X, axis=-1)
         K = rbf_kernel(X)
-        # for i, x_i in enumerate(X):
-        #     for j, x_j in enumerate(X):
-        #         K[i, j] = self.kernel(x_i, x_j)
-        #     print(K[i, j])
-        # print("K end")
-        # print(K.shape)
-        # print(np.mean(K), np.min(K), np.max(K))
-
-        # P = cvxopt.matrix(np.outer(y, y)*K)
-        # q = cvxopt.matrix(-np.ones((n_samples,1)))
-        # G = cvxopt.matrix(np.concatenate((np.eye(n_samples), -np.eye(n_samples))))
-        # h = cvxopt.matrix(np.concatenate((self.C * np.ones((n_samples, 1)), np.zeros((n_samples, 1)))))
-        # b = cvxopt.matrix(0.0)
-        # A = cvxopt.matrix(y.reshape(1, n_samples).astype(np.double))
 
         P = cvxopt.matrix(np.outer(y, y)*K)
         q = cvxopt.matrix(-np.ones((n_samples,1)))
@@ -112,35 +92,12 @@ class SVM_NonLinear_Classifier(object):
         self.bias = bias
 
     def predict(self, X):
-        print('predict fun przed obliczeniami, długość przekazanego X: ', X.shape)
-        print('DłUGOŚC SELF.weights: ', self.weights.shape)
-        print('DłUGOŚC SELF.LABELS: ', self.labels.shape)
-        # a = rbf_kernel( self.vectors, X)
-        # # print(a)
-        # b = np.matmul(a, self.weights)
-        #
-        # dupa = np.matmul(self.weights.reshape(-1, 1), self.labels.reshape(-1, 1).T)
-        # print('DłUGOŚC a: ', a.shape, a)
-        # # print('DłUGOŚC dupa = weights x labels: ', dupa.shape)
-        # # c = np.matmul(b.reshape(-1, 1), self.labels.reshape(1, -1))
-        # c = np.matmul(dupa, a)
-        #
-        # result = np.sum(c, axis=0) + self.bias
-        # # print('parametry predict: a,b,c: ', a.shape, b.shape, c.shape)
-        # print('result długość: ', result.shape)
-        # print('predict fun po obliczeniach, długość przekazanego X: ', X.shape)
-
         result1 = np.zeros(X.shape[0])
         for i, x in enumerate(X):
             y = 0
             for j, X_v in enumerate(self.vectors):
                 y += self.weights[j] * self.labels[j] * rbf_kernel(np.array([X_v]), np.array([x]))
-                # print(y[0][0])
             result1[i] = y+self.bias
-        # result = np.sum(c.T, axis=0) + self.bias
-        # result1 = np.sum(rbf_kernel(self.vectors, X).T @ self.weights.reshape(-1, 1) @ self.labels.reshape(1, -1),
-        #                 axis=1) + self.bias
-        print('bias', self.bias)
         return np.sign(result1)
 
 
