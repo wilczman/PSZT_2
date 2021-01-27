@@ -36,13 +36,13 @@ class SVM_NonLinear(object):
 
         support_vectors_indices = ((self.C > lagrange_multipliers) & (lagrange_multipliers > SUPPORT_VECTOR_MULTIPLIER_THRESHOLD))
         
-        svm_multipliers = np.zeros(lagrange_multipliers.shape)
-        svm_vectors = np.zeros(X.shape)
-        svm_labels = np.zeros(y.shape)
+        # svm_multipliers = np.zeros(lagrange_multipliers.shape)
+        # svm_vectors = np.zeros(X.shape)
+        # svm_labels = np.zeros(y.shape)
 
-        svm_multipliers[support_vectors_indices] = lagrange_multipliers[support_vectors_indices]
-        svm_vectors[support_vectors_indices] = X[support_vectors_indices]
-        svm_labels[support_vectors_indices] = y[support_vectors_indices]
+        svm_multipliers = lagrange_multipliers[support_vectors_indices]
+        svm_vectors = X[support_vectors_indices]
+        svm_labels = y[support_vectors_indices]
 
 
         bias = np.mean(
@@ -92,12 +92,17 @@ class SVM_NonLinear_Classifier(object):
         self.bias = bias
 
     def predict(self, X):
-        result1 = np.zeros(X.shape[0])
-        for i, x in enumerate(X):
-            y = 0
-            for j, X_v in enumerate(self.vectors):
-                y += self.weights[j] * self.labels[j] * rbf_kernel(np.array([X_v]), np.array([x]))
-            result1[i] = y+self.bias
+        ker = rbf_kernel(self.vectors, X)
+        alfa_y = np.multiply(self.labels.reshape(-1, 1), self.weights.reshape(-1,1))
+        result1 = np.matmul(ker.T, alfa_y).T[0]
+
+        # wersja iteracyjna również działa
+        # result1 = np.zeros(X.shape[0])
+        # for i, x in enumerate(X):
+        #     y = 0
+        #     for j, X_v in enumerate(self.vectors):
+        #         y += self.weights[j] * self.labels[j] * rbf_kernel(np.array([X_v]), np.array([x]))
+        #     result1[i] = y+self.bias
         return np.sign(result1)
 
 
