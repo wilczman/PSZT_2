@@ -19,7 +19,7 @@ from svo import SVM as svo
 from svm_3 import svm_3
 
 X_train, y_train, X_test, y_test = mnist.load()
-limit = 6000
+limit = 1000
 X_train = X_train.astype(np.float64)[0:limit, :]
 X_test = X_test.astype(np.float64)[0:limit, :]
 y_train = y_train[0:limit]
@@ -117,20 +117,20 @@ if __name__ == '__main__':
     # pca.fit_transform(X_train)
     # pca.transform(X_test)
 
-    X = X_train[(y_train == 0) | (y_train == 1)] / 256
-    y = y_train[(y_train == 0) | (y_train == 1)].astype(np.double)
+    X = X_train[(y_train == 0) | (y_train == 3)] / 256
+    y = y_train[(y_train == 0) | (y_train == 3)].astype(np.double)
 
     positive_indices = (y == 0)
-    negative_indices = (y == 1)
+    negative_indices = (y == 3)
 
     y[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
     y[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
 
-    X_t = X_test[(y_test == 0) | (y_test == 1)] / 256
-    y_t = y_test[(y_test == 0) | (y_test == 1)].astype(np.double)
+    X_t = X_test[(y_test == 0) | (y_test == 3)] / 256
+    y_t = y_test[(y_test == 0) | (y_test == 3)].astype(np.double)
 
     positive_indices = (y_t == 0)
-    negative_indices = (y_t == 1)
+    negative_indices = (y_t == 3)
 
     y_t[positive_indices] = np.ones(sum(positive_indices)).reshape(-1)
     y_t[negative_indices] = -np.ones(sum(negative_indices)).reshape(-1)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     # classifier = svm_3.SVM()
     classifier = svm_pszt.SVM_NonLinear()
     print('odpalam fit X,y o długościach', len(y), len(X))
-    dupa = classifier.fit(X, y)
+    dupa = classifier.fit(X, y, gamma=0)
     # classifier.train(X, y, {})
     print('długości danych trainowych: ', len(y), len(X))
     print('długości danych testowych: ', len(y_t),len(X_t))

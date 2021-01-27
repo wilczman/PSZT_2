@@ -11,7 +11,7 @@ class Kernel(object):
     '''
     @staticmethod
     def rbf(sigma = 1):
-        return lambda x_1, x_2: np.exp(-norm(np.subtract(x_1, x_2)) / (2*sigma*sigma))
+        return lambda x_1, x_2: np.exp(-norm(np.subtract(x_1, x_2),2) / (2*sigma*sigma))
 
 
 class SVM_NonLinear(object):
@@ -115,22 +115,33 @@ class SVM_NonLinear_Classifier(object):
         print('predict fun przed obliczeniami, długość przekazanego X: ', X.shape)
         print('DłUGOŚC SELF.weights: ', self.weights.shape)
         print('DłUGOŚC SELF.LABELS: ', self.labels.shape)
-        a = rbf_kernel( self.vectors, X)
-        # print(a)
-        b = np.matmul(a, self.weights)
-
-
-        dupa = np.matmul(self.weights.reshape(-1, 1), self.labels.reshape(-1, 1).T)
+        # a = rbf_kernel( self.vectors, X)
+        # # print(a)
+        # b = np.matmul(a, self.weights)
+        #
+        # dupa = np.matmul(self.weights.reshape(-1, 1), self.labels.reshape(-1, 1).T)
         # print('DłUGOŚC a: ', a.shape, a)
-        # print('DłUGOŚC dupa = weights x labels: ', dupa.shape)
-        c = np.matmul(b.reshape(-1, 1), self.labels.reshape(1, -1))
+        # # print('DłUGOŚC dupa = weights x labels: ', dupa.shape)
+        # # c = np.matmul(b.reshape(-1, 1), self.labels.reshape(1, -1))
         # c = np.matmul(dupa, a)
+        #
+        # result = np.sum(c, axis=0) + self.bias
+        # # print('parametry predict: a,b,c: ', a.shape, b.shape, c.shape)
+        # print('result długość: ', result.shape)
+        # print('predict fun po obliczeniach, długość przekazanego X: ', X.shape)
 
-        result = np.sum(c, axis=0) + self.bias
-        # print('parametry predict: a,b,c: ', a.shape, b.shape, c.shape)
-        print('result długość: ', result.shape)
-        print('predict fun po obliczeniach, długość przekazanego X: ', X.shape)
-        return np.sign(result)
+        result1 = np.zeros(X.shape[0])
+        for i, x in enumerate(X):
+            y = 0
+            for j, X_v in enumerate(self.vectors):
+                y += self.weights[j] * self.labels[j] * rbf_kernel(np.array([X_v]), np.array([x]))
+                # print(y[0][0])
+            result1[i] = y+self.bias
+        # result = np.sum(c.T, axis=0) + self.bias
+        # result1 = np.sum(rbf_kernel(self.vectors, X).T @ self.weights.reshape(-1, 1) @ self.labels.reshape(1, -1),
+        #                 axis=1) + self.bias
+        print('bias', self.bias)
+        return np.sign(result1)
 
 
 class SVM_Linear():
